@@ -1,0 +1,41 @@
+<div *ngIf="website">
+  <h2>{{website.domain | uppercase}} Details</h2>
+  <div>url: {{website.url}}</div>
+</div>
+
+<table mat-table [dataSource]="pages" aria-label="Table with tracked websites">
+  <ng-container matColumnDef = "Name">
+    <th mat-header-cell *matHeaderCellDef>Name</th>
+    <td mat-cell *matCellDef = "let pages">{{pages.name}}</td>
+  </ng-container>
+  <ng-container matColumnDef = "URL">
+    <th mat-header-cell *matHeaderCellDef>URL</th>
+    <td mat-cell *matCellDef = "let pages">{{pages.url}}</td>
+  </ng-container>
+  <ng-container matColumnDef = "Status">
+    <th mat-header-cell *matHeaderCellDef>Status</th>
+    <td mat-cell *matCellDef = "let page">{{page.pageStatus}}</td>
+  </ng-container>
+  <ng-container matColumnDef = "LastEval">
+    <th mat-header-cell *matHeaderCellDef>Last Evaluation</th>
+    <td mat-cell *matCellDef = "let page">{{getEvalDate(page)}}</td>
+  </ng-container>
+
+
+  <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
+  <tr mat-row *matRowDef="let website; columns: columnsToDisplay"></tr>
+</table>
+
+<div>
+  <form>
+    <mat-form-field>
+      <mat-label>Page url:</mat-label>
+      <input matInput placeholder="https://example.com/page" #pageURL>
+    </mat-form-field>
+    <button mat-raised-button class="add-button" (click)="addPage(pageURL.value); pageURL.value=''">
+      Add Page
+    </button>
+  </form>
+</div>
+
+<button type="button" (click)="goBack()">go back</button>
