@@ -1,0 +1,69 @@
+<h1 class="mat-h1">Websites Monitorizados</h1>
+
+<div>
+  <mat-form-field >
+    <mat-label>Filtro</mat-label>
+    <mat-select (selectionChange)="filterData($event.value)">
+      <mat-option *ngFor="let filter of filters" [value]="filter" >
+        {{filter}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+
+<ng-template #delConf>
+  <h2 mat-dialog-title>Apagar Website</h2>
+  <mat-dialog-content>Este website tem {{this.deletionWebsite!.pages.length}} páginas guardadas.<br>Tem a certeza que quer apagar o website?</mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-button mat-dialog-close (click) ="this.deletionWebsite = undefined">Não</button>
+    <button mat-button [mat-dialog-close]="true" (click)="delete(this.deletionWebsite!); this.deletionWebsite = undefined">Sim</button>
+  </mat-dialog-actions>
+
+</ng-template>
+<table mat-table [dataSource]="websites" matSort aria-label="Table with tracked websites">
+
+  <ng-container matColumnDef = "url">
+    <th mat-header-cell *matHeaderCellDef>URL</th>
+    <td mat-cell *matCellDef = "let website">{{website.url}}</td>
+  </ng-container>
+  <ng-container matColumnDef = "status">
+    <th mat-header-cell *matHeaderCellDef>Estado</th>
+    <td mat-cell *matCellDef = "let website">{{website.status}}</td>
+  </ng-container>
+  <ng-container matColumnDef = "registrationDate">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Data de Registo</th>
+    <td mat-cell *matCellDef = "let website">{{getDate(website)}}</td>
+  </ng-container>
+
+  <ng-container matColumnDef = "lastEvaluation">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Última Avaliação</th>
+    <td mat-cell *matCellDef = "let website">{{getLastEval(website)}}</td>
+  </ng-container>
+
+  <ng-container matColumnDef = "Delete">
+    <th mat-header-cell *matHeaderCellDef></th>
+    <td mat-cell *matCellDef = "let website">
+      <button mat-button (click)="$event.stopPropagation();confirmDelete(website)" (keydown.enter)="$event.stopPropagation()">
+        Remover</button>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
+  <tr class="dataRow" mat-row *matRowDef="let website; columns: columnsToDisplay" (keydown.enter)="navigateTo(website)" [routerLink]="'/detail/' + website._id">
+  </tr>
+</table>
+<mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+<br>
+<div>
+  <form>
+    <mat-form-field [formGroup]="formGroup">
+      <mat-label>Website url:</mat-label>
+      <input (keydown.enter)="this.formGroup.get('urlForm')?.markAsTouched()" matInput placeholder="https://example.com/" formControlName = "urlForm" #url>
+      <mat-error>{{errorMessage}}</mat-error>
+
+    </mat-form-field>
+    <button [disabled]="formGroup.get('urlForm')?.errors" mat-raised-button class="add-button" (click)="add(url.value); url.value=''">
+      Adicionar Website
+    </button>
+  </form>
+</div>

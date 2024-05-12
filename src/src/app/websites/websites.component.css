@@ -1,0 +1,8 @@
+.dataRow:hover {
+  cursor: pointer;
+  background-color: #F5F5F5;
+}
+
+.dataRow:focus {
+  background-color: #F5F5F5;
+}

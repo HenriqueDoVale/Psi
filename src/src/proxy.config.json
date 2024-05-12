@@ -1,0 +1,7 @@
+{
+    "/*": {
+        "target": "http://appserver.alunos.di.fc.ul.pt:3011",
+        "secure": false,
+        "logLevel": "debug"
+    }
+}

@@ -1,0 +1,110 @@
+
+
+<div *ngIf="website">
+
+  <h2 class="mat-h1">Website: {{website.url}} </h2>
+  <h3 class="mat-h3"> Estado: {{website.status}}</h3>
+  <h3 class="mat-h3"> Data de Registo: {{getDate(website)}}</h3>
+  <h3 class="mat-h3"> Data da Última Avaliação: {{getLastEval(website)}}</h3>
+</div>
+
+<div>
+  <mat-form-field >
+    <mat-label>Filtro</mat-label>
+    <mat-select (selectionChange)="filterData($event.value)">
+      <mat-option *ngFor="let filter of filters" [value]="filter" >
+        {{filter}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+
+<table mat-table [dataSource]="pages" matSort aria-label="Table with website pages">
+  <ng-container matColumnDef = "name">
+    <th mat-header-cell *matHeaderCellDef>Nome</th>
+    <td mat-cell *matCellDef = "let pages">{{pages.name}}</td>
+    <td mat-footer-cell *matFooterCellDef></td>
+  </ng-container>
+  <ng-container matColumnDef = "url">
+    <th mat-header-cell *matHeaderCellDef>URL</th>
+    <td mat-cell *matCellDef = "let pages">{{pages.url}}</td>
+    <td mat-footer-cell *matFooterCellDef></td>
+  </ng-container>
+  <ng-container matColumnDef = "pageStatus">
+    <th mat-header-cell *matHeaderCellDef>Estado</th>
+    <td mat-cell *matCellDef = "let page">{{page.pageStatus}}</td>
+    <td mat-footer-cell *matFooterCellDef></td>
+  </ng-container>
+  <ng-container matColumnDef = "lastEvaluation">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Última Avaliação</th>
+    <td mat-cell *matCellDef = "let page">{{getEvalDate(page)}}</td>
+    <td mat-footer-cell *matFooterCellDef></td>
+  </ng-container>
+  <ng-container matColumnDef = "eval">
+    <th mat-header-cell *matHeaderCellDef>Avaliar</th>
+    <td mat-cell *matCellDef = "let page"><mat-checkbox [(ngModel)]="page.forEval"  [disabled]="page.pageStatus === 'Em avaliação' " (keydown.enter)="page.forEval = !page.forEval"></mat-checkbox></td>
+    <td mat-footer-cell *matFooterCellDef>
+      <form>
+        <button id="evalButton" mat-raised-button class="add-button" [disabled]="!hasEval()" (click)="evaluate()">
+          Avaliar
+        </button>
+      </form>
+    </td>
+  </ng-container>
+  <ng-container matColumnDef = "Delete">
+    <th mat-header-cell *matHeaderCellDef>Remover</th>
+    <td mat-cell *matCellDef = "let page"><mat-checkbox [(ngModel)]="page.forRemoval"  [disabled]="page.pageStatus === 'Em avaliação' " (keydown.enter)="page.forEval = !page.forEval"></mat-checkbox></td>
+    <td mat-footer-cell *matFooterCellDef>
+      <button id="remButton" mat-raised-button [disabled]="!hasDel()" (click)="$event.stopPropagation();delete()">Remover</button>
+    </td>
+
+  </ng-container>
+
+
+  <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
+  <tr mat-row *matRowDef="let website; columns: columnsToDisplay"></tr>
+  <tr mat-footer-row *matFooterRowDef="columnsToDisplay"></tr>
+</table>
+<mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+
+<div>
+  <form>
+    <mat-form-field [formGroup]="formGroup" id="add">
+      <mat-label>Url da Página:</mat-label>
+      <input (keydown.enter)="this.formGroup.get('urlForm')?.markAsTouched()" matInput placeholder="https://example.com/page" #pageURL formControlName = "urlForm" #pageUrl>
+      <mat-error>{{errorMessage}}</mat-error>
+
+    </mat-form-field>
+
+    <button mat-raised-button [disabled]="formGroup.get('urlForm')?.errors" class="add-button" (click)="addPage(pageURL.value); pageURL.value=''">
+      Adicionar Página
+    </button>
+  </form>
+</div>
+
+<br>
+<br>
+
+<div id="stats">
+<mat-list *ngIf="this.errors != 0 || this.noErrors != 0">
+  <h3 class = "mat-h3">Estatísticas de Acessibilidade</h3>
+  <mat-list-item>Páginas Sem Erro:{{this.noErrors}} ({{Math.round(this.noErrors/(this.errors + this.noErrors) * 10000) / 100}}%)</mat-list-item>
+  <mat-list-item>Páginas com pelo menos um erro: {{this.errors}} ({{Math.round(this.errors/(this.errors + this.noErrors) * 10000) / 100}}%)</mat-list-item>
+  <mat-list-item>Páginas com pelo menos um erro A: {{this.errorsA}} ({{Math.round(this.errorsA/(this.errors + this.noErrors) * 10000) / 100}}%)</mat-list-item>
+  <mat-list-item>Páginas com pelo menos um erro AA: {{this.errorsAA}} ({{Math.round(this.errorsAA/(this.errors + this.noErrors) * 10000) / 100}}%)</mat-list-item>
+  <mat-list-item>Páginas com pelo menos um erro AAA: {{this.errorsAAA}} ({{Math.round(this.errorsAAA/(this.errors + this.noErrors) * 10000) / 100}}%)</mat-list-item>
+</mat-list>
+
+<mat-divider [vertical]="true"></mat-divider>
+
+<mat-list *ngIf="this.websiteErrors.length > 0" id="occ">
+  <h3 class = "mat-h3">Erros com mais ocorrências</h3>
+  <mat-list-item *ngFor="let error of websiteErrors; index as i">
+   {{i + 1}}.{{error[0]}}: {{error[1].name}} ({{error[1].occurences}})
+  </mat-list-item>
+</mat-list>
+</div>
+
+
+<button mat-raised-button (click)="goBack()">Voltar</button>
+
